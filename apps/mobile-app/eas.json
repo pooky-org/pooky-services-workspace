@@ -1,0 +1,43 @@
+{
+  "cli": {
+    "version": ">= 16.20.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "http://192.168.1.31:3000",
+        "EXPO_PUBLIC_DESKTOP_SSE_SUBSCRIPTION_ID": "484fb753-b9f8-4bb2-9256-17ef87ac069e",
+        "EXPO_PUBLIC_MOBILE_SSE_SUBSCRIPTION_ID": "e3a3ff1d-56df-414c-8514-16d87e516f96",
+        "EXPO_PUBLIC_SOCKET_URL": "http://192.168.1.31:3000",
+        "EXPO_PUBLIC_SOCKET_PATH": "/ws"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "http://192.168.1.31:3000",
+        "EXPO_PUBLIC_DESKTOP_SSE_SUBSCRIPTION_ID": "484fb753-b9f8-4bb2-9256-17ef87ac069e",
+        "EXPO_PUBLIC_MOBILE_SSE_SUBSCRIPTION_ID": "e3a3ff1d-56df-414c-8514-16d87e516f96",
+        "EXPO_PUBLIC_SOCKET_URL": "http://192.168.1.31:3000",
+        "EXPO_PUBLIC_SOCKET_PATH": "/ws"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "NODE_ENV": "production",
+        "EXPO_PUBLIC_API_BASE_URL": "https://192.168.1.103:3001",
+        "EXPO_PUBLIC_DESKTOP_SSE_SUBSCRIPTION_ID": "484fb753-b9f8-4bb2-9256-17ef87ac069e",
+        "EXPO_PUBLIC_MOBILE_SSE_SUBSCRIPTION_ID": "e3a3ff1d-56df-414c-8514-16d87e516f96",
+        "EXPO_PUBLIC_SOCKET_URL": "https://192.168.1.103:3001",
+        "EXPO_PUBLIC_SOCKET_PATH": "/ws"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

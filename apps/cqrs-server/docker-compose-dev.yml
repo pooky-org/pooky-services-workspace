@@ -1,0 +1,88 @@
+services:
+  # kafka:
+  #   image: confluentinc/cp-kafka:7.5.0
+  #   ports:
+  #     - "9092:9092"
+  #     - "29092:29092"  # Inter-container communication
+  #   environment:
+  #     KAFKA_PROCESS_ROLES: broker,controller
+  #     KAFKA_NODE_ID: 1
+  #     KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+  #     KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+  #     KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+  #     KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #     CLUSTER_ID: Rys77VSYRp-xH7RrFnV9VA  # Can be any unique string
+  #   networks:
+  #     - pooky-network
+
+  # kafdrop:
+  #   image: obsidiandynamics/kafdrop:latest
+  #   depends_on:
+  #     - kafka
+  #   ports:
+  #     - "9000:9000"
+  #   environment:
+  #     KAFKA_BROKERCONNECT: kafka:29092
+  #     JVM_OPTS: "-Xms128M -Xmx512M"
+  #   networks:
+  #     - pooky-network
+
+  mongodb:
+    image: mongodb/mongodb-community-server:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - type: volume
+        source: mongodb-volume-data
+        target: /data/db
+    networks:
+      - pooky-network
+
+  # kurrentdb:
+  #   image: docker.kurrent.io/kurrent-latest/kurrentdb:latest
+  #   environment:
+  #     KURRENTDB_CLUSTER_SIZE: 1
+  #     KURRENTDB_RUN_PROJECTIONS: All
+  #     KURRENTDB_START_STANDARD_PROJECTIONS: true
+  #     KURRENTDB_NODE_PORT: 2113
+  #     KURRENTDB_INSECURE: true
+  #     KURRENTDB_ENABLE_ATOM_PUB_OVER_HTTP: true
+  #   ports:
+  #     - "2113:2113"
+  #   volumes:
+  #     - type: volume
+  #       source: kurrentdb-volume-data
+  #       target: /var/lib/kurrentdb
+  #     - type: volume
+  #       source: kurrentdb-volume-logs
+  #       target: /var/log/kurrentdb
+  #   networks:
+  #     - pooky-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    environment:
+      - REDIS_PASSWORD=yourpassword # optional if you want auth
+    command: ["redis-server", "--requirepass", "yourpassword"]
+    networks:
+      - pooky-network
+
+networks:
+  pooky-network:
+    driver: bridge
+
+volumes:
+  mongodb-volume-data:
+  # kurrentdb-volume-data:
+  # kurrentdb-volume-logs:
+  redis-data:
