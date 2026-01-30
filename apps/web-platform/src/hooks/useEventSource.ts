@@ -1,30 +1,30 @@
 import { type Dispatch, type SetStateAction, useEffect } from "react";
 
 interface EventSourceProps<T> {
-  valueSetter: Dispatch<SetStateAction<T>>;
-  endpoint: string;
+	valueSetter: Dispatch<SetStateAction<T>>;
+	endpoint: string;
 }
 
 export const useEventSource = <T>({
-  valueSetter,
-  endpoint,
+	valueSetter,
+	endpoint,
 }: EventSourceProps<T>) => {
-  useEffect(() => {
-    const url = new URL(endpoint, process.env.NEXT_PUBLIC_API_URL);
-    const eventSource = new EventSource(url);
+	useEffect(() => {
+		const url = new URL(endpoint, process.env.NEXT_PUBLIC_API_URL);
+		const eventSource = new EventSource(url);
 
-    eventSource.onmessage = (event) => {
-      const parsedData = JSON.parse(event.data);
-      valueSetter(parsedData);
-    };
+		eventSource.onmessage = (event) => {
+			const parsedData = JSON.parse(event.data);
+			valueSetter(parsedData);
+		};
 
-    eventSource.onerror = (err) => {
-      console.error("SSE error:", err);
-      eventSource.close();
-    };
+		eventSource.onerror = (err) => {
+			console.error("SSE error:", err);
+			eventSource.close();
+		};
 
-    return () => {
-      eventSource.close();
-    };
-  }, [valueSetter, endpoint]);
+		return () => {
+			eventSource.close();
+		};
+	}, [valueSetter, endpoint]);
 };

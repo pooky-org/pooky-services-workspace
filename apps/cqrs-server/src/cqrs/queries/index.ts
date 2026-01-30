@@ -1,1 +1,1 @@
-export * from './cqrs-queries.module';
+export * from "./cqrs-queries.module";
