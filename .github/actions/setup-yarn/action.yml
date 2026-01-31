@@ -1,0 +1,30 @@
+name: Setup Yarn
+description: Checkout repository, setup Node.js and install dependencies with Yarn
+
+inputs:
+  node-version:
+    description: "Node.js version to use"
+    required: false
+    default: "22"
+  fetch-depth:
+    description: "Number of commits to fetch (0 for all history)"
+    required: false
+    default: "0"
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: ${{ inputs.fetch-depth }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: "yarn"
+
+    - name: Install dependencies
+      shell: bash
+      run: yarn install --frozen-lockfile

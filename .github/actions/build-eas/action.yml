@@ -1,0 +1,54 @@
+name: Build EAS
+description: Build and submit mobile app using Expo EAS
+
+inputs:
+  expo-token:
+    description: "Expo authentication token"
+    required: true
+  working-directory:
+    description: "Working directory for the mobile app"
+    required: false
+    default: "./apps/mobile-app"
+  platform:
+    description: "Platform to build (ios, android, all)"
+    required: false
+    default: "all"
+  auto-submit:
+    description: "Auto submit to stores"
+    required: false
+    default: "true"
+  profile:
+    description: "EAS build profile"
+    required: false
+    default: "production"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Expo
+      uses: expo/expo-github-action@v8
+      with:
+        eas-version: latest
+        token: ${{ inputs.expo-token }}
+
+    - name: Build and submit iOS
+      if: inputs.platform == 'ios' || inputs.platform == 'all'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        if [ "${{ inputs.auto-submit }}" == "true" ]; then
+          eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local --auto-submit
+        else
+          eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local
+        fi
+
+    - name: Build and submit Android
+      if: inputs.platform == 'android' || inputs.platform == 'all'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        if [ "${{ inputs.auto-submit }}" == "true" ]; then
+          eas build --platform android --profile ${{ inputs.profile }} --non-interactive --auto-submit
+        else
+          eas build --platform android --profile ${{ inputs.profile }} --non-interactive
+        fi

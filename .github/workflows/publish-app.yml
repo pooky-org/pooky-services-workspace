@@ -1,0 +1,80 @@
+name: Publish Apps
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      changed-apps: ${{ steps.detect.outputs.changed-apps }}
+      docker-apps: ${{ steps.detect.outputs.docker-apps }}
+      eas-apps: ${{ steps.detect.outputs.eas-apps }}
+
+    steps:
+      - name: Setup
+        uses: ./.github/actions/setup-yarn
+        with:
+          fetch-depth: "2"
+
+      - name: Detect changes
+        id: detect
+        uses: ./.github/actions/detect-changes
+        with:
+          turbo-filter: "...[HEAD^]"
+
+  build-docker:
+    name: Build Docker - ${{ matrix.app }}
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docker-apps != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJson(needs.detect-changes.outputs.docker-apps) }}
+
+    steps:
+      - name: Setup
+        uses: ./.github/actions/setup-yarn
+
+      - name: Build and push Docker image
+        uses: ./.github/actions/build-docker
+        with:
+          app: ${{ matrix.app }}
+          registry: ${{ env.REGISTRY }}
+          image-name: ${{ env.IMAGE_NAME }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-eas:
+    name: Build EAS - ${{ matrix.app }}
+    needs: detect-changes
+    if: needs.detect-changes.outputs.eas-apps != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJson(needs.detect-changes.outputs.eas-apps) }}
+
+    steps:
+      - name: Setup
+        uses: ./.github/actions/setup-yarn
+
+      - name: Build and submit mobile app
+        uses: ./.github/actions/build-eas
+        with:
+          expo-token: ${{ secrets.EXPO_TOKEN }}
+          working-directory: ./apps/${{ matrix.app }}
+          platform: ios
+          auto-submit: "true"
+
+

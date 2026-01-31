@@ -1,0 +1,93 @@
+name: Detect Changes
+description: Detect which apps have changed using Turborepo
+
+inputs:
+  turbo-filter:
+    description: "Turbo filter for changeset detection"
+    required: false
+    default: "...[HEAD^]"
+
+outputs:
+  changed-apps:
+    description: "JSON array of all changed apps"
+    value: ${{ steps.changed-apps.outputs.result }}
+  docker-apps:
+    description: "JSON array of changed apps with Dockerfile"
+    value: ${{ steps.categorize.outputs.docker-apps }}
+  eas-apps:
+    description: "JSON array of changed apps with eas.json"
+    value: ${{ steps.categorize.outputs.eas-apps }}
+
+runs:
+  using: composite
+  steps:
+    - name: Turbo Changeset
+      id: changeset
+      shell: bash
+      run: |
+        content=$(yarn build --filter=${{ inputs.turbo-filter }} --dry-run=json 2>/dev/null || echo '{"packages":[]}')
+        echo "result=$content" >> $GITHUB_OUTPUT
+
+    - name: Get changed apps
+      id: changed-apps
+      shell: bash
+      run: |
+        # Extract packages from turbo output and filter only apps (not packages)
+        packages='${{ steps.changeset.outputs.result }}'
+        changed_apps=$(echo "$packages" | jq -c '[.packages[] | select(. != "//") | select(startswith("@") | not)]')
+        
+        # Filter to only include apps that exist in apps/ directory
+        valid_apps=()
+        for app in $(echo "$changed_apps" | jq -r '.[]'); do
+          if [ -d "apps/$app" ]; then
+            valid_apps+=("$app")
+          fi
+        done
+        
+        if [ ${#valid_apps[@]} -eq 0 ]; then
+          echo "result=[]" >> $GITHUB_OUTPUT
+        else
+          json=$(printf '%s\n' "${valid_apps[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "result=$json" >> $GITHUB_OUTPUT
+        fi
+        echo "Changed apps: ${valid_apps[*]:-none}"
+
+    - name: Categorize apps by build type
+      id: categorize
+      shell: bash
+      run: |
+        changed_apps='${{ steps.changed-apps.outputs.result }}'
+        
+        docker_apps=()
+        eas_apps=()
+        
+        for app in $(echo "$changed_apps" | jq -r '.[]'); do
+          if [ -f "apps/$app/Dockerfile" ]; then
+            docker_apps+=("$app")
+            echo "  - $app: Docker"
+          fi
+          if [ -f "apps/$app/eas.json" ]; then
+            eas_apps+=("$app")
+            echo "  - $app: EAS"
+          fi
+        done
+        
+        # Output Docker apps
+        if [ ${#docker_apps[@]} -eq 0 ]; then
+          echo "docker-apps=[]" >> $GITHUB_OUTPUT
+        else
+          json=$(printf '%s\n' "${docker_apps[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "docker-apps=$json" >> $GITHUB_OUTPUT
+        fi
+        
+        # Output EAS apps
+        if [ ${#eas_apps[@]} -eq 0 ]; then
+          echo "eas-apps=[]" >> $GITHUB_OUTPUT
+        else
+          json=$(printf '%s\n' "${eas_apps[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "eas-apps=$json" >> $GITHUB_OUTPUT
+        fi
+        
+        echo "Docker apps: ${docker_apps[*]:-none}"
+        echo "EAS apps: ${eas_apps[*]:-none}"
+
