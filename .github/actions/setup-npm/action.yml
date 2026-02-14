@@ -26,4 +26,6 @@ runs:
 
     - name: Install dependencies
       shell: bash
-      run: npm ci --include=dev
+      env:
+        NPM_CONFIG_OPTIONAL: "true"
+      run: npm ci --include=dev --include=optional
