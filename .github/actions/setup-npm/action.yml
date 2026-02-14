@@ -20,6 +20,10 @@ runs:
         node-version: ${{ inputs.node-version }}
         cache: "npm"
 
+    - name: Enable Corepack
+      shell: bash
+      run: corepack enable
+
     - name: Install dependencies
       shell: bash
       run: npm ci --include=dev
