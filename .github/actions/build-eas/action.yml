@@ -37,9 +37,9 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         if [ "${{ inputs.auto-submit }}" == "true" ]; then
-          eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local --auto-submit
+          npx eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local --auto-submit
         else
-          eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local
+          npx eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local
         fi
 
     - name: Build and submit Android
@@ -48,7 +48,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         if [ "${{ inputs.auto-submit }}" == "true" ]; then
-          eas build --platform android --profile ${{ inputs.profile }} --non-interactive --auto-submit
+          npx eas build --platform android --profile ${{ inputs.profile }} --non-interactive --auto-submit
         else
-          eas build --platform android --profile ${{ inputs.profile }} --non-interactive
+          npx eas build --platform android --profile ${{ inputs.profile }} --non-interactive
         fi
