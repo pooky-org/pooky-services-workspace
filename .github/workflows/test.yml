@@ -20,7 +20,7 @@ jobs:
           fetch-depth: ${{ inputs.fetch-depth }}
 
       - name: Setup
-        uses: ./.github/actions/setup-yarn
+        uses: ./.github/actions/setup-npm
 
       - name: Test
-        run: yarn test
+        run: npm run test
