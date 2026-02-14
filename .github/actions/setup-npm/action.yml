@@ -1,5 +1,5 @@
-name: Setup Yarn
-description: Checkout repository, setup Node.js and install dependencies with Yarn
+name: Setup npm
+description: Checkout repository, setup Node.js and install dependencies with npm
 
 inputs:
   node-version:
@@ -18,8 +18,8 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
-        cache: "yarn"
+        cache: "npm"
 
     - name: Install dependencies
       shell: bash
-      run: yarn install --frozen-lockfile
+      run: npm ci
