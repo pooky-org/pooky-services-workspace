@@ -91,5 +91,7 @@ jobs:
           working-directory: ./apps/${{ matrix.app }}
           platform: ios
           auto-submit: "true"
+          vault-url: ${{ vars.OPENBAO_URL }}
+          vault-token: ${{ secrets.OPENBAO_TOKEN }}
 
 
