@@ -34,64 +34,24 @@ runs:
   using: composite
   steps:
     - name: Setup Expo
-      uses: expo/expo-github-action@v8
+      uses: ./.github/actions/setup-expo
       with:
-        eas-version: latest
-        token: ${{ inputs.expo-token }}
+        expo-token: ${{ inputs.expo-token }}
 
-    - name: Fetch iOS certificates from OpenBao
+    - name: Fetch iOS certificates
       if: |
         (inputs.platform == 'ios' || inputs.platform == 'all') && 
         inputs.vault-url != ''
-      uses: hashicorp/vault-action@v3
+      uses: ./.github/actions/fetch-ios-certs
       with:
-        url: ${{ inputs.vault-url }}
-        token: ${{ inputs.vault-token }}
-        secrets: |
-          kv/data/distribution p12_b64 | IOS_DIST_CERT_B64 ;
-          kv/data/distribution p12_password | IOS_DIST_CERT_P12_PASSWORD ;
-          kv/data/distribution provision_b64 | IOS_PROVISION_PROFILE_B64
+        vault-url: ${{ inputs.vault-url }}
+        vault-token: ${{ inputs.vault-token }}
+        working-directory: ${{ inputs.working-directory }}
 
-    - name: Create iOS certs directory
-      if: |
-        (inputs.platform == 'ios' || inputs.platform == 'all') && 
-        inputs.vault-url != ''
+    - name: Install EAS local build plugin
+      if: inputs.platform == 'ios' || inputs.platform == 'all'
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: mkdir -p certs/ios
-
-    - name: Save iOS certificates to certs/ios
-      if: |
-        (inputs.platform == 'ios' || inputs.platform == 'all') && 
-        inputs.vault-url != ''
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: |
-        # Décoder les fichiers base64
-        echo "$IOS_DIST_CERT_B64" | base64 -d > certs/ios/dist.p12
-        echo "$IOS_PROVISION_PROFILE_B64" | base64 -d > certs/ios/profile.mobileprovision
-        
-        # Vérifier que les fichiers sont créés
-        ls -lh certs/ios/
-
-    - name: Create credentials.json
-      if: |
-        (inputs.platform == 'ios' || inputs.platform == 'all') && 
-        inputs.vault-url != ''
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: |
-        cat > credentials.json << EOF
-        {
-          "ios": {
-            "distributionCertificate": {
-              "path": "certs/ios/dist.p12",
-              "password": "${IOS_DIST_CERT_P12_PASSWORD}"
-            },
-            "provisioningProfilePath": "certs/ios/profile.mobileprovision"
-          }
-        }
-        EOF
+      run: npm install -g eas-cli-local-build-plugin
 
     - name: Build and submit iOS
       if: inputs.platform == 'ios' || inputs.platform == 'all'
@@ -99,9 +59,9 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         if [ "${{ inputs.auto-submit }}" == "true" ]; then
-          npx eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local --auto-submit
+          eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local --auto-submit
         else
-          npx eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local
+          eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local
         fi
 
     - name: Build and submit Android
@@ -110,7 +70,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         if [ "${{ inputs.auto-submit }}" == "true" ]; then
-          npx eas build --platform android --profile ${{ inputs.profile }} --non-interactive --auto-submit
+          eas build --platform android --profile ${{ inputs.profile }} --non-interactive --auto-submit
         else
-          npx eas build --platform android --profile ${{ inputs.profile }} --non-interactive
+          eas build --platform android --profile ${{ inputs.profile }} --non-interactive
         fi
