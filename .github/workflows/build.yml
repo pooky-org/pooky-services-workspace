@@ -12,9 +12,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    env:
-      # Make EXPO_TOKEN available to all steps and child processes
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,5 +21,30 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup-npm
 
+      # Build all packages except mobile-app (requires macOS)
       - name: Build
-        run: EXPO_TOKEN=$EXPO_TOKEN npx --yes --package eas-cli eas build --platform ios --profile development --non-interactive --local
+        run: npx turbo run build --filter=!mobile-app
+
+  build-mobile:
+    name: Build Mobile (iOS)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
+
+      - name: Setup
+        uses: ./.github/actions/setup-npm
+
+      # Required for EAS CLI authentication in CI
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      # --local: build on the runner (macOS) instead of EAS cloud
+      - name: Build iOS
+        working-directory: apps/mobile-app
+        run: npx --yes --package eas-cli eas build --platform ios --profile development --non-interactive --local
