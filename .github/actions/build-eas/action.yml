@@ -21,15 +21,37 @@ inputs:
     description: "EAS build profile"
     required: false
     default: "production"
+  vault-url:
+    description: "OpenBao/Vault server URL"
+    required: false
+    default: ""
+  vault-token:
+    description: "OpenBao/Vault authentication token"
+    required: false
+    default: ""
 
 runs:
   using: composite
   steps:
     - name: Setup Expo
-      uses: expo/expo-github-action@v8
+      uses: ./.github/actions/setup-expo
       with:
-        eas-version: latest
-        token: ${{ inputs.expo-token }}
+        expo-token: ${{ inputs.expo-token }}
+
+    - name: Fetch iOS certificates
+      if: |
+        (inputs.platform == 'ios' || inputs.platform == 'all') && 
+        inputs.vault-url != ''
+      uses: ./.github/actions/fetch-ios-certs
+      with:
+        vault-url: ${{ inputs.vault-url }}
+        vault-token: ${{ inputs.vault-token }}
+        working-directory: ${{ inputs.working-directory }}
+
+    - name: Install EAS local build plugin
+      if: inputs.platform == 'ios' || inputs.platform == 'all'
+      shell: bash
+      run: npm install -g eas-cli-local-build-plugin
 
     - name: Build and submit iOS
       if: inputs.platform == 'ios' || inputs.platform == 'all'

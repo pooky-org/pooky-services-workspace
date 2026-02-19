@@ -1,4 +1,4 @@
-name: Test
+name: Type Check
 
 on:
   push:
@@ -10,8 +10,8 @@ on:
       - main
 
 jobs:
-  test:
-    name: Test
+  check-types:
+    name: Type Check
     runs-on: ubuntu-latest
 
     steps:
@@ -23,5 +23,5 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup-npm
 
-      - name: Test
-        run: npm run test
+      - name: Type Check
+        run: npm run check-types

@@ -1,0 +1,47 @@
+name: Fetch iOS Certificates
+description: Fetch iOS certificates from OpenBao and create credentials.json
+
+inputs:
+  vault-url:
+    description: "OpenBao/Vault server URL"
+    required: true
+  vault-token:
+    description: "OpenBao/Vault authentication token"
+    required: true
+  working-directory:
+    description: "Working directory for the mobile app"
+    required: false
+    default: "./apps/mobile-app"
+
+runs:
+  using: composite
+  steps:
+    - name: Fetch iOS certificates from OpenBao
+      uses: hashicorp/vault-action@v3
+      with:
+        url: ${{ inputs.vault-url }}
+        token: ${{ inputs.vault-token }}
+        secrets: |
+          kv/data/distribution p12_b64 | IOS_DIST_CERT_B64 ;
+          kv/data/distribution p12_password | IOS_DIST_CERT_P12_PASSWORD ;
+          kv/data/distribution provision_b64 | IOS_PROVISION_PROFILE_B64
+
+    - name: Create iOS certs and credentials.json
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        mkdir -p certs/ios
+        echo "$IOS_DIST_CERT_B64" | base64 -d > certs/ios/dist.p12
+        echo "$IOS_PROVISION_PROFILE_B64" | base64 -d > certs/ios/profile.mobileprovision
+        cat > credentials.json << EOF
+        {
+          "ios": {
+            "distributionCertificate": {
+              "path": "certs/ios/dist.p12",
+              "password": "${IOS_DIST_CERT_P12_PASSWORD}"
+            },
+            "provisioningProfilePath": "certs/ios/profile.mobileprovision"
+          }
+        }
+        EOF
+        ls -lh certs/ios/

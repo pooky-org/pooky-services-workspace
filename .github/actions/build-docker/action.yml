@@ -9,20 +9,17 @@ inputs:
     description: "Docker registry"
     required: false
     default: "ghcr.io"
-  image-name:
-    description: "Base image name"
+  docker-username:
+    description: "Docker registry username"
     required: true
-  github-token:
-    description: "GitHub token for registry authentication"
+  docker-password:
+    description: "Docker registry password or token"
     required: true
 
 outputs:
   image-tags:
     description: "Generated image tags"
     value: ${{ steps.meta.outputs.tags }}
-  image-digest:
-    description: "Image digest"
-    value: ${{ steps.build.outputs.digest }}
 
 runs:
   using: composite
@@ -34,14 +31,14 @@ runs:
       uses: docker/login-action@v3
       with:
         registry: ${{ inputs.registry }}
-        username: ${{ github.actor }}
-        password: ${{ inputs.github-token }}
+        username: ${{ inputs.docker-username }}
+        password: ${{ inputs.docker-password }}
 
     - name: Extract metadata for Docker
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ inputs.registry }}/${{ inputs.image-name }}/${{ inputs.app }}
+        images: ${{ inputs.registry }}/${{ inputs.app }}
         tags: |
           type=ref,event=branch
           type=sha,prefix=
@@ -56,5 +53,3 @@ runs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
