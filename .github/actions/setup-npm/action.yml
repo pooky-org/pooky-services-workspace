@@ -1,5 +1,5 @@
-name: Setup Yarn
-description: Checkout repository, setup Node.js and install dependencies with Yarn
+name: Setup npm
+description: Checkout repository, setup Node.js and install dependencies with npm
 
 inputs:
   node-version:
@@ -14,17 +14,18 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: ${{ inputs.fetch-depth }}
-
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
-        cache: "yarn"
+        cache: "npm"
+
+    - name: Enable Corepack
+      shell: bash
+      run: corepack enable
 
     - name: Install dependencies
       shell: bash
-      run: yarn install --frozen-lockfile
+      env:
+        NPM_CONFIG_OPTIONAL: "true"
+      run: npm ci --include=dev --include=optional

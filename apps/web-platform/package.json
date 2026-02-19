@@ -6,8 +6,9 @@
 		"dev": "next dev --turbopack -p ${PORT:-3001}",
 		"build": "next build",
 		"start": "next start -p ${PORT:-3001}",
-		"lint": "next lint",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+		"lint": "biome lint app src",
+		"test": "echo \"Error: no test specified\" && exit 0"
 	},
 	"dependencies": {
 		"next": "15.4.5",

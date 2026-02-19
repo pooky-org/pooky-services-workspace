@@ -14,8 +14,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
+
       - name: Setup
-        uses: ./.github/actions/setup-yarn
+        uses: ./.github/actions/setup-npm
 
       - name: Test
-        run: yarn test
+        run: npm run test

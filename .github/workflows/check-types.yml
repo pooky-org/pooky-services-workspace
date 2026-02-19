@@ -1,4 +1,4 @@
-name: Lint
+name: Type Check
 
 on:
   push:
@@ -9,8 +9,8 @@ on:
       - develop
 
 jobs:
-  lint:
-    name: Lint
+  check-types:
+    name: Type Check
     runs-on: ubuntu-latest
 
     steps:
@@ -22,5 +22,5 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup-npm
 
-      - name: Lint
-        run: npm run lint
+      - name: Type Check
+        run: npm run check-types

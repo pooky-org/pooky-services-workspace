@@ -5,10 +5,6 @@ on:
     branches:
       - main
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   detect-changes:
     name: Detect Changes
@@ -19,8 +15,13 @@ jobs:
       eas-apps: ${{ steps.detect.outputs.eas-apps }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
+
       - name: Setup
-        uses: ./.github/actions/setup-yarn
+        uses: ./.github/actions/setup-npm
         with:
           fetch-depth: "2"
 
@@ -44,16 +45,21 @@ jobs:
         app: ${{ fromJson(needs.detect-changes.outputs.docker-apps) }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
+
       - name: Setup
-        uses: ./.github/actions/setup-yarn
+        uses: ./.github/actions/setup-npm
 
       - name: Build and push Docker image
         uses: ./.github/actions/build-docker
         with:
           app: ${{ matrix.app }}
-          registry: ${{ env.REGISTRY }}
-          image-name: ${{ env.IMAGE_NAME }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ vars.DOCKER_REGISTRY_URL }}
+          docker-username: ${{ vars.DOCKER_USERNAME }}
+          docker-password: ${{ secrets.DOCKER_PASSWORD }}
 
   build-eas:
     name: Build EAS - ${{ matrix.app }}
@@ -66,8 +72,13 @@ jobs:
         app: ${{ fromJson(needs.detect-changes.outputs.eas-apps) }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
+
       - name: Setup
-        uses: ./.github/actions/setup-yarn
+        uses: ./.github/actions/setup-npm
 
       - name: Build and submit mobile app
         uses: ./.github/actions/build-eas
@@ -76,5 +87,7 @@ jobs:
           working-directory: ./apps/${{ matrix.app }}
           platform: ios
           auto-submit: "true"
+          vault-url: ${{ vars.OPENBAO_URL }}
+          vault-token: ${{ secrets.OPENBAO_TOKEN }}
 
 

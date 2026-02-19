@@ -12,10 +12,48 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-
     steps:
-      - name: Setup
-        uses: ./.github/actions/setup-yarn
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
 
+      - name: Setup
+        uses: ./.github/actions/setup-npm
+
+      # Build all packages except mobile-app (requires macOS)
       - name: Build
-        run: yarn build
+        run: npx turbo run build --filter=!mobile-app
+
+  build-mobile:
+    name: Build Mobile (iOS)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
+
+      - name: Setup
+        uses: ./.github/actions/setup-npm
+
+      # Required for EAS CLI authentication in CI
+      - name: Setup Expo and EAS
+        uses: ./.github/actions/setup-expo
+        with:
+          expo-token: ${{ secrets.EXPO_TOKEN }}
+
+      # Fetch iOS certs from OpenBao and create credentials.json
+      - name: Fetch iOS certificates
+        uses: ./.github/actions/fetch-ios-certs
+        with:
+          vault-url: ${{ vars.OPENBAO_URL }}
+          vault-token: ${{ secrets.OPENBAO_TOKEN }}
+          working-directory: apps/mobile-app
+
+      # --local: build on the runner (macOS) instead of EAS cloud
+      - name: Build iOS
+        working-directory: apps/mobile-app
+        run: |
+          npm install -g eas-cli-local-build-plugin
+          eas build --platform ios --profile development --non-interactive --local

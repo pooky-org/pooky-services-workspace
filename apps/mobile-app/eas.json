@@ -7,6 +7,9 @@
 		"development": {
 			"developmentClient": true,
 			"distribution": "internal",
+			"ios": {
+				"credentialsSource": "local"
+			},
 			"env": {
 				"EXPO_PUBLIC_API_BASE_URL": "http://192.168.1.31:3000",
 				"EXPO_PUBLIC_DESKTOP_SSE_SUBSCRIPTION_ID": "484fb753-b9f8-4bb2-9256-17ef87ac069e",
@@ -27,6 +30,10 @@
 		},
 		"production": {
 			"autoIncrement": true,
+			"distribution": "internal",
+			"ios": {
+				"credentialsSource": "local"
+			},
 			"env": {
 				"NODE_ENV": "production",
 				"EXPO_PUBLIC_API_BASE_URL": "http://192.168.1.103:3001",
@@ -38,6 +45,10 @@
 		}
 	},
 	"submit": {
-		"production": {}
+		"production": {
+			"ios": {
+				"ascAppId": "6758272806"
+			}
+		}
 	}
 }
