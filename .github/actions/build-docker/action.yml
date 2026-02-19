@@ -9,9 +9,6 @@ inputs:
     description: "Docker registry"
     required: false
     default: "ghcr.io"
-  image-name:
-    description: "Base image name"
-    required: true
   docker-username:
     description: "Docker registry username"
     required: true
@@ -23,9 +20,6 @@ outputs:
   image-tags:
     description: "Generated image tags"
     value: ${{ steps.meta.outputs.tags }}
-  image-digest:
-    description: "Image digest"
-    value: ${{ steps.build.outputs.digest }}
 
 runs:
   using: composite
@@ -44,7 +38,7 @@ runs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ inputs.registry }}/${{ inputs.image-name }}/${{ inputs.app }}
+        images: ${{ inputs.registry }}/${{ inputs.app }}
         tags: |
           type=ref,event=branch
           type=sha,prefix=
@@ -59,5 +53,3 @@ runs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max

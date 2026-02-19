@@ -58,7 +58,6 @@ jobs:
         with:
           app: ${{ matrix.app }}
           registry: ${{ vars.DOCKER_REGISTRY_URL }}
-          image-name: ${{ env.IMAGE_NAME }}
           docker-username: ${{ vars.DOCKER_USERNAME }}
           docker-password: ${{ secrets.DOCKER_PASSWORD }}
 
