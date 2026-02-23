@@ -16,6 +16,7 @@ import {
 	type SocketOptions,
 } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
+import { useRuntimeConfig } from "./RuntimeConfigContext";
 
 interface SocketContextType {
 	socket: Socket | null;
@@ -36,10 +37,14 @@ interface SocketProviderProps {
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({
 	children,
-	url = process.env.NEXT_PUBLIC_SOCKET_URL,
-	path = process.env.NEXT_PUBLIC_SOCKET_PATH,
+	url,
+	path,
 	options = {},
 }) => {
+	const config = useRuntimeConfig();
+	const resolvedUrl = url ?? config.socketUrl;
+	const resolvedPath = path ?? config.socketPath;
+
 	const [isConnected, setIsConnected] = useState(false);
 	const socketRef = useRef<Socket | null>(null);
 
@@ -89,8 +94,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
 	// Handle socket connection lifecycle
 	useEffect(() => {
 		// Initialize socket connection
-		socketRef.current = io(url, {
-			path,
+		socketRef.current = io(resolvedUrl, {
+			path: resolvedPath,
 			...optionsRef.current,
 		});
 
@@ -114,7 +119,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
 				socketRef.current = null;
 			}
 		};
-	}, [url, path, safeGenerateSessionId]);
+	}, [resolvedUrl, resolvedPath, safeGenerateSessionId]);
 
 	// Handle room creation when connected
 	useEffect(() => {

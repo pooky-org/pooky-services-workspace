@@ -1,4 +1,5 @@
 import { type Dispatch, type SetStateAction, useEffect } from "react";
+import { useRuntimeConfig } from "@/src/contexts";
 
 interface EventSourceProps<T> {
 	valueSetter: Dispatch<SetStateAction<T>>;
@@ -9,8 +10,10 @@ export const useEventSource = <T>({
 	valueSetter,
 	endpoint,
 }: EventSourceProps<T>) => {
+	const { apiUrl } = useRuntimeConfig();
+
 	useEffect(() => {
-		const url = new URL(endpoint, process.env.NEXT_PUBLIC_API_URL);
+		const url = new URL(endpoint, apiUrl);
 		const eventSource = new EventSource(url);
 
 		eventSource.onmessage = (event) => {
@@ -26,5 +29,5 @@ export const useEventSource = <T>({
 		return () => {
 			eventSource.close();
 		};
-	}, [valueSetter, endpoint]);
+	}, [valueSetter, endpoint, apiUrl]);
 };
