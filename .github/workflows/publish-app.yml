@@ -6,35 +6,33 @@ on:
       - main
 
 jobs:
-  detect-changes:
-    name: Detect Changes
-    runs-on: ubuntu-latest
-    outputs:
-      changed-apps: ${{ steps.detect.outputs.changed-apps }}
-      docker-apps: ${{ steps.detect.outputs.docker-apps }}
-      eas-apps: ${{ steps.detect.outputs.eas-apps }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: ${{ inputs.fetch-depth }}
-
-      - name: Setup
-        uses: ./.github/actions/setup-npm
-        with:
-          fetch-depth: "2"
-
-      - name: Detect changes
-        id: detect
-        uses: ./.github/actions/detect-changes
-        with:
-          turbo-filter: "...[HEAD^]"
+  # detect-changes:
+  #   name: Detect Changes
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     changed-apps: ${{ steps.detect.outputs.changed-apps }}
+  #     docker-apps: ${{ steps.detect.outputs.docker-apps }}
+  #     eas-apps: ${{ steps.detect.outputs.eas-apps }}
+  #
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: ${{ inputs.fetch-depth }}
+  #
+  #     - name: Setup
+  #       uses: ./.github/actions/setup-npm
+  #       with:
+  #         fetch-depth: "2"
+  #
+  #     - name: Detect changes
+  #       id: detect
+  #       uses: ./.github/actions/detect-changes
+  #       with:
+  #         turbo-filter: "...[HEAD^]"
 
   build-docker:
     name: Build Docker - ${{ matrix.app }}
-    needs: detect-changes
-    if: needs.detect-changes.outputs.docker-apps != '[]'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -42,7 +40,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: ${{ fromJson(needs.detect-changes.outputs.docker-apps) }}
+        app: ["cqrs-server", "web-platform"]
 
     steps:
       - name: Checkout repository
@@ -63,13 +61,11 @@ jobs:
 
   build-eas:
     name: Build EAS - ${{ matrix.app }}
-    needs: detect-changes
-    if: needs.detect-changes.outputs.eas-apps != '[]'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        app: ${{ fromJson(needs.detect-changes.outputs.eas-apps) }}
+        app: ["mobile-app"]
 
     steps:
       - name: Checkout repository
