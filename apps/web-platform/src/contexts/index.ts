@@ -1,7 +1,7 @@
 export { GestureProvider, useGesture } from "./GestureContext";
 export {
+	type RuntimeConfig,
 	RuntimeConfigProvider,
 	useRuntimeConfig,
-	type RuntimeConfig,
 } from "./RuntimeConfigContext";
 export { SocketProvider, useSocket } from "./SocketContext";

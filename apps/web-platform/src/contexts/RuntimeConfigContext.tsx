@@ -10,7 +10,9 @@ export interface RuntimeConfig {
 	mobileSseSubscriptionId: string;
 }
 
-const RuntimeConfigContext = createContext<RuntimeConfig | undefined>(undefined);
+const RuntimeConfigContext = createContext<RuntimeConfig | undefined>(
+	undefined,
+);
 
 interface RuntimeConfigProviderProps {
 	children: ReactNode;
