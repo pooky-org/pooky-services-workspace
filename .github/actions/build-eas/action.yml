@@ -1,5 +1,5 @@
 name: Build EAS
-description: Build and submit mobile app using Expo EAS
+description: Build and optionally submit mobile app using Expo EAS (local build, requires macOS)
 
 inputs:
   expo-token:
@@ -12,15 +12,15 @@ inputs:
   platform:
     description: "Platform to build (ios, android, all)"
     required: false
-    default: "all"
+    default: "ios"
   auto-submit:
-    description: "Auto submit to stores"
+    description: "Auto submit to stores after build"
     required: false
-    default: "true"
+    default: "false"
   profile:
     description: "EAS build profile"
     required: false
-    default: "production"
+    default: "development"
   vault-url:
     description: "OpenBao/Vault server URL"
     required: false
@@ -33,31 +33,28 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Setup Expo
+    # Required for EAS CLI authentication in CI
+    - name: Setup Expo and EAS
       uses: ./.github/actions/setup-expo
       with:
         expo-token: ${{ inputs.expo-token }}
 
+    # Fetch iOS certs from OpenBao and create credentials.json
     - name: Fetch iOS certificates
-      if: |
-        (inputs.platform == 'ios' || inputs.platform == 'all') && 
-        inputs.vault-url != ''
+      if: (inputs.platform == 'ios' || inputs.platform == 'all') && inputs.vault-url != ''
       uses: ./.github/actions/fetch-ios-certs
       with:
         vault-url: ${{ inputs.vault-url }}
         vault-token: ${{ inputs.vault-token }}
         working-directory: ${{ inputs.working-directory }}
 
-    - name: Install EAS local build plugin
-      if: inputs.platform == 'ios' || inputs.platform == 'all'
-      shell: bash
-      run: npm install -g eas-cli-local-build-plugin
-
+    # --local: build on the runner (macOS) instead of EAS cloud
     - name: Build iOS
       if: inputs.platform == 'ios' || inputs.platform == 'all'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
+        npm install -g eas-cli-local-build-plugin
         eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local --output ./build.ipa
 
     - name: Upload iOS artifact
@@ -72,8 +69,7 @@ runs:
       if: (inputs.platform == 'ios' || inputs.platform == 'all') && inputs.auto-submit == 'true'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: |
-        eas submit --platform ios --path ./build.ipa --non-interactive
+      run: eas submit --platform ios --path ./build.ipa --non-interactive
 
     - name: Build Android
       if: inputs.platform == 'android' || inputs.platform == 'all'
@@ -94,5 +90,4 @@ runs:
       if: (inputs.platform == 'android' || inputs.platform == 'all') && inputs.auto-submit == 'true'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: |
-        eas submit --platform android --path ./build.aab --non-interactive
+      run: eas submit --platform android --path ./build.aab --non-interactive

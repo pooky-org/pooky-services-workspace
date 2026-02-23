@@ -38,23 +38,12 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup-npm
 
-      # Required for EAS CLI authentication in CI
-      - name: Setup Expo and EAS
-        uses: ./.github/actions/setup-expo
+      - name: Build iOS
+        uses: ./.github/actions/build-eas
         with:
           expo-token: ${{ secrets.EXPO_TOKEN }}
-
-      # Fetch iOS certs from OpenBao and create credentials.json
-      - name: Fetch iOS certificates
-        uses: ./.github/actions/fetch-ios-certs
-        with:
+          working-directory: apps/mobile-app
+          platform: ios
+          profile: development
           vault-url: ${{ vars.OPENBAO_URL }}
           vault-token: ${{ secrets.OPENBAO_TOKEN }}
-          working-directory: apps/mobile-app
-
-      # --local: build on the runner (macOS) instead of EAS cloud
-      - name: Build iOS
-        working-directory: apps/mobile-app
-        run: |
-          npm install -g eas-cli-local-build-plugin
-          eas build --platform ios --profile development --non-interactive --local

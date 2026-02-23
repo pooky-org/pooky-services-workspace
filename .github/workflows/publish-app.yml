@@ -61,7 +61,7 @@ jobs:
 
   build-eas:
     name: Build EAS - ${{ matrix.app }}
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
@@ -82,6 +82,7 @@ jobs:
           expo-token: ${{ secrets.EXPO_TOKEN }}
           working-directory: ./apps/${{ matrix.app }}
           platform: ios
+          profile: production
           auto-submit: "true"
           vault-url: ${{ vars.OPENBAO_URL }}
           vault-token: ${{ secrets.OPENBAO_TOKEN }}
