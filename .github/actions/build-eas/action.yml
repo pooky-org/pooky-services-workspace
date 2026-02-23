@@ -53,24 +53,46 @@ runs:
       shell: bash
       run: npm install -g eas-cli-local-build-plugin
 
-    - name: Build and submit iOS
+    - name: Build iOS
       if: inputs.platform == 'ios' || inputs.platform == 'all'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        if [ "${{ inputs.auto-submit }}" == "true" ]; then
-          eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local --auto-submit
-        else
-          eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local
-        fi
+        eas build --platform ios --profile ${{ inputs.profile }} --non-interactive --local --output ./build.ipa
 
-    - name: Build and submit Android
+    - name: Upload iOS artifact
+      if: inputs.platform == 'ios' || inputs.platform == 'all'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-build
+        path: ${{ inputs.working-directory }}/build.ipa
+        retention-days: 14
+
+    - name: Submit iOS
+      if: (inputs.platform == 'ios' || inputs.platform == 'all') && inputs.auto-submit == 'true'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        eas submit --platform ios --path ./build.ipa --non-interactive
+
+    - name: Build Android
       if: inputs.platform == 'android' || inputs.platform == 'all'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        if [ "${{ inputs.auto-submit }}" == "true" ]; then
-          eas build --platform android --profile ${{ inputs.profile }} --non-interactive --auto-submit
-        else
-          eas build --platform android --profile ${{ inputs.profile }} --non-interactive
-        fi
+        eas build --platform android --profile ${{ inputs.profile }} --non-interactive --local --output ./build.aab
+
+    - name: Upload Android artifact
+      if: inputs.platform == 'android' || inputs.platform == 'all'
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-build
+        path: ${{ inputs.working-directory }}/build.aab
+        retention-days: 14
+
+    - name: Submit Android
+      if: (inputs.platform == 'android' || inputs.platform == 'all') && inputs.auto-submit == 'true'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        eas submit --platform android --path ./build.aab --non-interactive
