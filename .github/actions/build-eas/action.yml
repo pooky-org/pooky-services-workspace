@@ -69,7 +69,7 @@ runs:
       if: (inputs.platform == 'ios' || inputs.platform == 'all') && inputs.auto-submit == 'true'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: eas submit --platform ios --path ./build.ipa --non-interactive
+      run: eas submit --platform ios --path ./build.ipa --non-interactive --no-wait
 
     - name: Build Android
       if: inputs.platform == 'android' || inputs.platform == 'all'
@@ -90,4 +90,4 @@ runs:
       if: (inputs.platform == 'android' || inputs.platform == 'all') && inputs.auto-submit == 'true'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: eas submit --platform android --path ./build.aab --non-interactive
+      run: eas submit --platform android --path ./build.aab --non-interactive --no-wait
