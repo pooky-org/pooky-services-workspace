@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { SocketProvider } from "../src/contexts";
+import {
+	RuntimeConfigProvider,
+	type RuntimeConfig,
+	SocketProvider,
+} from "../src/contexts";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,12 +27,22 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const runtimeConfig: RuntimeConfig = {
+		apiUrl: process.env.API_URL ?? "",
+		socketUrl: process.env.SOCKET_URL ?? "",
+		socketPath: process.env.SOCKET_PATH ?? "",
+		desktopSseSubscriptionId: process.env.DESKTOP_SSE_SUBSCRIPTION_ID ?? "",
+		mobileSseSubscriptionId: process.env.MOBILE_SSE_SUBSCRIPTION_ID ?? "",
+	};
+
 	return (
 		<html lang="en">
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
-				<SocketProvider>{children}</SocketProvider>
+				<RuntimeConfigProvider config={runtimeConfig}>
+					<SocketProvider>{children}</SocketProvider>
+				</RuntimeConfigProvider>
 			</body>
 		</html>
 	);
