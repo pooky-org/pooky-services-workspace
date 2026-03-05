@@ -9,6 +9,6 @@ export class GetAllModulesHandler implements IQueryHandler<GetAllModulesQuery> {
 	constructor(@InjectModel(Module.name) private moduleModel: Model<Module>) {}
 
 	async execute(_: GetAllModulesQuery): Promise<Module[]> {
-		return this.moduleModel.find();
+		return this.moduleModel.find({ enabled: true }).exec();
 	}
 }
