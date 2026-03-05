@@ -22,6 +22,7 @@ import {
 	GetModuleChildrenQuery,
 	GetRootModulesQuery,
 } from "../queries/definitions";
+import { GetModulePathsQuery } from "../queries/definitions/modules/get-module-paths.query";
 
 @Controller("modules")
 export class ModulesController {
@@ -54,6 +55,16 @@ export class ModulesController {
 	})
 	async getRootModules() {
 		return await this.queryBus.execute(new GetRootModulesQuery());
+	}
+
+	@Get("paths")
+	@ApiOkResponse({
+		description:
+			"Returns all possible module paths from roots to each module node",
+		example: [["rss"], ["rss", "tech"]],
+	})
+	async getModulePaths() {
+		return await this.queryBus.execute(new GetModulePathsQuery());
 	}
 
 	@Get(":parentId/children")
