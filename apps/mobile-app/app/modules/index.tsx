@@ -1,7 +1,3 @@
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { fetchRootModules } from "@/services/modulesService";
-import type { Module } from "@/types/module";
 import { type Href, router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -12,6 +8,11 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 } from "react-native";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { useModuleNavigation } from "@/hooks/web-socket/useModuleNavigation";
+import { fetchRootModules } from "@/services/modulesService";
+import type { Module } from "@/types/module";
 
 const NUM_COLUMNS = 3;
 const GRID_SPACING = 12;
@@ -20,6 +21,7 @@ const ITEM_SIZE =
 	(screenWidth - GRID_SPACING * (NUM_COLUMNS + 1)) / NUM_COLUMNS;
 
 export default function ModulesScreen() {
+	const { navigateToModule } = useModuleNavigation();
 	const [modules, setModules] = useState<Module[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -31,9 +33,7 @@ export default function ModulesScreen() {
 			const data = await fetchRootModules();
 			setModules(data);
 		} catch (err) {
-			setError(
-				err instanceof Error ? err.message : "Failed to load modules",
-			);
+			setError(err instanceof Error ? err.message : "Failed to load modules");
 		} finally {
 			setIsLoading(false);
 		}
@@ -44,8 +44,13 @@ export default function ModulesScreen() {
 	}, [loadModules]);
 
 	const handleModulePress = (mod: Module) => {
+		navigateToModule({
+			moduleId: mod._id,
+			submoduleId: null,
+			path: `/modules/${mod.slug}`,
+		});
 		router.push(
-			`/modules/${mod._id}?moduleName=${encodeURIComponent(mod.name)}` as Href,
+			`/modules/${mod._id}?moduleName=${encodeURIComponent(mod.name)}&moduleSlug=${encodeURIComponent(mod.slug)}` as Href,
 		);
 	};
 
@@ -70,9 +75,7 @@ export default function ModulesScreen() {
 		return (
 			<ThemedView style={styles.centerContainer}>
 				<ActivityIndicator size="large" color="#0a7ea4" />
-				<ThemedText style={styles.loadingText}>
-					Loading modules...
-				</ThemedText>
+				<ThemedText style={styles.loadingText}>Loading modules...</ThemedText>
 			</ThemedView>
 		);
 	}

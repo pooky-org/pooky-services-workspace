@@ -197,4 +197,35 @@ export class WebSocketGateway
 			data,
 		});
 	}
+
+	@SubscribeMessage("navigateToModule")
+	handleNavigateToModule(
+		client: Socket,
+		payload: {
+			roomId: string;
+			moduleId: string | null;
+			submoduleId: string | null;
+			path: string;
+		},
+	): void {
+		const { roomId, moduleId, submoduleId, path } = payload;
+
+		const room = this.server.sockets.adapter.rooms.get(roomId);
+		if (room) {
+			this.logger.verbose(
+				`Module navigation in room ${roomId}: path=${path}, moduleId=${moduleId}, submoduleId=${submoduleId}`,
+			);
+		}
+
+		console.log(
+			`Client ${client.id} navigated to module. Room: ${roomId}, Path: ${path}, ModuleId: ${moduleId}, SubmoduleId: ${submoduleId}`,
+		);
+
+		client.to(roomId).emit("moduleNavigated", {
+			clientId: client.id,
+			moduleId,
+			submoduleId,
+			path,
+		});
+	}
 }

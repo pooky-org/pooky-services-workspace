@@ -1,7 +1,3 @@
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { fetchModuleChildren } from "@/services/modulesService";
-import type { Module } from "@/types/module";
 import { type Href, router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -12,6 +8,11 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 } from "react-native";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { useModuleNavigation } from "@/hooks/web-socket/useModuleNavigation";
+import { fetchModuleChildren } from "@/services/modulesService";
+import type { Module } from "@/types/module";
 
 const NUM_COLUMNS = 3;
 const GRID_SPACING = 12;
@@ -20,7 +21,8 @@ const ITEM_SIZE =
 	(screenWidth - GRID_SPACING * (NUM_COLUMNS + 1)) / NUM_COLUMNS;
 
 export default function SubModulesScreen() {
-	const { moduleId } = useLocalSearchParams<{ moduleId: string }>();
+	const { moduleId, moduleSlug } = useLocalSearchParams<{ moduleId: string; moduleSlug: string }>();
+	const { navigateToModule } = useModuleNavigation();
 	const [submodules, setSubmodules] = useState<Module[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -34,9 +36,7 @@ export default function SubModulesScreen() {
 			setSubmodules(data);
 		} catch (err) {
 			setError(
-				err instanceof Error
-					? err.message
-					: "Failed to load sub-modules",
+				err instanceof Error ? err.message : "Failed to load sub-modules",
 			);
 		} finally {
 			setIsLoading(false);
@@ -48,6 +48,11 @@ export default function SubModulesScreen() {
 	}, [loadSubmodules]);
 
 	const handleSubmodulePress = (submodule: Module) => {
+		navigateToModule({
+			moduleId: moduleId,
+			submoduleId: submodule._id,
+			path: `/modules/${moduleSlug}/${submodule.slug}`,
+		});
 		router.push(
 			`/modules/${moduleId}/${submodule._id}?submoduleName=${encodeURIComponent(submodule.name)}` as Href,
 		);
@@ -85,10 +90,7 @@ export default function SubModulesScreen() {
 		return (
 			<ThemedView style={styles.centerContainer}>
 				<ThemedText style={styles.errorText}>Error: {error}</ThemedText>
-				<TouchableOpacity
-					style={styles.retryButton}
-					onPress={loadSubmodules}
-				>
+				<TouchableOpacity style={styles.retryButton} onPress={loadSubmodules}>
 					<ThemedText style={styles.retryText}>Retry</ThemedText>
 				</TouchableOpacity>
 			</ThemedView>
