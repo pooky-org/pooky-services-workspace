@@ -1,9 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
 import {
 	IsBoolean,
+	IsHexColor,
 	IsMongoId,
 	IsOptional,
 	IsString,
+	IsUrl,
 	MaxLength,
 } from "class-validator";
 
@@ -25,6 +27,22 @@ export class CreateModuleDto {
 	@IsString()
 	@MaxLength(32)
 	slug: string;
+
+	@ApiProperty({
+		description: "Hexadecimal color of the module",
+		example: "#22C55E",
+	})
+	@IsString()
+	@IsHexColor()
+	color: string;
+
+	@ApiProperty({
+		description: "Icon URL for the module",
+		example: "https://cdn.example.com/icons/weather.svg",
+	})
+	@IsString()
+	@IsUrl()
+	icon: string;
 
 	@ApiProperty({
 		description: "Whether the module is enabled or not",
