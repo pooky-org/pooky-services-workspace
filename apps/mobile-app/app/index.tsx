@@ -15,7 +15,7 @@ export default function RoomsScreen() {
 	const handleRoomPress = (room: WebSocketRoom) => {
 		handleJoinRoom(room.roomId);
 		setToStorage("roomId", room.roomId);
-		router.push("/(tabs)");
+		router.push("/modules");
 	};
 
 	return (

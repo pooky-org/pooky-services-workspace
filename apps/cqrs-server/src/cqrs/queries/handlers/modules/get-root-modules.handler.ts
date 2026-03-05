@@ -11,6 +11,6 @@ export class GetRootModulesHandler
 	constructor(@InjectModel(Module.name) private moduleModel: Model<Module>) {}
 
 	async execute(_query: GetRootModulesQuery): Promise<Module[]> {
-		return this.moduleModel.find({ parent: null }).exec();
+		return this.moduleModel.find({ parent: null, enabled: true }).exec();
 	}
 }

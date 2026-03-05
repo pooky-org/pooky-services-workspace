@@ -1,10 +1,19 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import {
+	Body,
+	Controller,
+	Get,
+	Inject,
+	Param,
+	Post,
+	Query,
+} from "@nestjs/common";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import {
 	ApiBody,
 	ApiCreatedResponse,
 	ApiOkResponse,
 	ApiParam,
+	ApiQuery,
 } from "@nestjs/swagger";
 import { CreateModuleCommand } from "../commands/definitions/create-module.command";
 import { CreateModuleDto } from "../commands/dto/create-module.dto";
@@ -13,20 +22,31 @@ import {
 	GetModuleChildrenQuery,
 	GetRootModulesQuery,
 } from "../queries/definitions";
+import { GetModulePathsQuery } from "../queries/definitions/modules/get-module-paths.query";
 
 @Controller("modules")
 export class ModulesController {
 	constructor(
-		private readonly queryBus: QueryBus,
-		private readonly commandBus: CommandBus,
+		@Inject(QueryBus) private readonly queryBus: QueryBus,
+		@Inject(CommandBus) private readonly commandBus: CommandBus,
 	) {}
 
 	@Get()
+	@ApiQuery({
+		name: "all",
+		required: false,
+		type: Boolean,
+		example: true,
+		description:
+			"When true, returns all modules including disabled ones. Default: false",
+	})
 	@ApiOkResponse({
 		description: "Returns all modules",
 	})
-	async getModules() {
-		return await this.queryBus.execute(new GetAllModulesQuery());
+	async getModules(@Query("all") all?: string) {
+		const includeAll = all === "true";
+
+		return await this.queryBus.execute(new GetAllModulesQuery(includeAll));
 	}
 
 	@Get("roots")
@@ -35,6 +55,16 @@ export class ModulesController {
 	})
 	async getRootModules() {
 		return await this.queryBus.execute(new GetRootModulesQuery());
+	}
+
+	@Get("paths")
+	@ApiOkResponse({
+		description:
+			"Returns all possible module paths from roots to each module node",
+		example: [["rss"], ["rss", "tech"]],
+	})
+	async getModulePaths() {
+		return await this.queryBus.execute(new GetModulePathsQuery());
 	}
 
 	@Get(":parentId/children")
@@ -61,6 +91,8 @@ export class ModulesController {
 				value: {
 					name: "Dashboard",
 					slug: "dashboard",
+					color: "#6366F1",
+					icon: "https://cdn.example.com/icons/dashboard.svg",
 					enabled: true,
 					parent: null,
 				},
@@ -71,6 +103,8 @@ export class ModulesController {
 				value: {
 					name: "Weather Widget",
 					slug: "weather",
+					color: "#0EA5E9",
+					icon: "https://cdn.example.com/icons/weather.svg",
 					enabled: true,
 					parent: "64f8a7b2c1234567890abcde",
 				},

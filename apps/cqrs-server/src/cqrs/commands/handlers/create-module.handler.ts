@@ -20,6 +20,19 @@ export class CreateModuleHandler
 					`Parent module with ID ${command.module.parent} not found`,
 				);
 			}
+
+			const moduleWithSameSlug = await this.moduleModel
+				.findOne({
+					slug: command.module.slug,
+					parent: command.module.parent,
+				})
+				.exec();
+
+			if (moduleWithSameSlug) {
+				throw new Error(
+					`A sub-module with slug "${command.module.slug}" already exists for parent ${command.module.parent}`,
+				);
+			}
 		}
 
 		const createdModule = new this.moduleModel({
