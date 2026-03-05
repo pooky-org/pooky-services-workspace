@@ -8,7 +8,11 @@ import { GetAllModulesQuery } from "../../definitions";
 export class GetAllModulesHandler implements IQueryHandler<GetAllModulesQuery> {
 	constructor(@InjectModel(Module.name) private moduleModel: Model<Module>) {}
 
-	async execute(_: GetAllModulesQuery): Promise<Module[]> {
+	async execute(query: GetAllModulesQuery): Promise<Module[]> {
+		if (query.includeAll) {
+			return this.moduleModel.find().exec();
+		}
+
 		return this.moduleModel.find({ enabled: true }).exec();
 	}
 }

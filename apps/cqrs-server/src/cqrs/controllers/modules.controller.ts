@@ -1,10 +1,19 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import {
+	Body,
+	Controller,
+	Get,
+	Inject,
+	Param,
+	Post,
+	Query,
+} from "@nestjs/common";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import {
 	ApiBody,
 	ApiCreatedResponse,
 	ApiOkResponse,
 	ApiParam,
+	ApiQuery,
 } from "@nestjs/swagger";
 import { CreateModuleCommand } from "../commands/definitions/create-module.command";
 import { CreateModuleDto } from "../commands/dto/create-module.dto";
@@ -17,16 +26,26 @@ import {
 @Controller("modules")
 export class ModulesController {
 	constructor(
-		private readonly queryBus: QueryBus,
-		private readonly commandBus: CommandBus,
+		@Inject(QueryBus) private readonly queryBus: QueryBus,
+		@Inject(CommandBus) private readonly commandBus: CommandBus,
 	) {}
 
 	@Get()
+	@ApiQuery({
+		name: "all",
+		required: false,
+		type: Boolean,
+		example: true,
+		description:
+			"When true, returns all modules including disabled ones. Default: false",
+	})
 	@ApiOkResponse({
 		description: "Returns all modules",
 	})
-	async getModules() {
-		return await this.queryBus.execute(new GetAllModulesQuery());
+	async getModules(@Query("all") all?: string) {
+		const includeAll = all === "true";
+
+		return await this.queryBus.execute(new GetAllModulesQuery(includeAll));
 	}
 
 	@Get("roots")
