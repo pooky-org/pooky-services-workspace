@@ -6,16 +6,16 @@ export type ModuleDocument = mongoose.HydratedDocument<Module>;
 @Schema()
 export class Module {
 	@Prop()
-	name: string;
+	name!: string;
 
 	@Prop()
-	slug: string;
+	slug!: string;
 
 	@Prop()
-	enabled: boolean;
+	enabled!: boolean;
 
 	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Module", default: null })
-	parent: Module | null;
+	parent!: Module | null;
 }
 
 export const ModuleSchema = SchemaFactory.createForClass(Module);
