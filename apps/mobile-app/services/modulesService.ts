@@ -23,9 +23,7 @@ export async function fetchRootModules(): Promise<Module[]> {
 	}
 }
 
-export async function fetchModuleChildren(
-	parentId: string,
-): Promise<Module[]> {
+export async function fetchModuleChildren(parentId: string): Promise<Module[]> {
 	try {
 		const response = await fetch(
 			`${API_BASE_URL}/api/modules/${parentId}/children`,

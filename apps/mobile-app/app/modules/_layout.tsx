@@ -1,15 +1,22 @@
+import { Stack, useRouter } from "expo-router";
+import { Text, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { useRooms } from "@/contexts/RoomsContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { Stack, useRouter } from "expo-router";
-import { Text, TouchableOpacity } from "react-native";
+import { useModuleNavigation } from "@/hooks/web-socket/useModuleNavigation";
 
 export default function ModulesLayout() {
 	const router = useRouter();
 	const { joinedRoomId } = useRooms();
 	const colorScheme = useColorScheme();
+	const { navigateToModule } = useModuleNavigation();
 
 	const handleBackPress = () => {
+		navigateToModule({
+			moduleId: null,
+			submoduleId: null,
+			path: "/modules",
+		});
 		router.back();
 	};
 

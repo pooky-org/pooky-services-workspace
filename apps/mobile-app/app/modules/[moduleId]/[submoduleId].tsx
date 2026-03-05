@@ -1,5 +1,3 @@
-import { Gesture as GestureType } from "@/enums/Gesture";
-import { useGesture } from "@/hooks/web-socket/useGesture";
 import * as Haptics from "expo-haptics";
 import { type Href, router } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";
@@ -18,6 +16,8 @@ import Animated, {
 	withDelay,
 	withSpring,
 } from "react-native-reanimated";
+import { Gesture as GestureType } from "@/enums/Gesture";
+import { useGesture } from "@/hooks/web-socket/useGesture";
 
 export default function TouchPad() {
 	const { sendGesture, gestureData } = useGesture<{ href: string }>();
