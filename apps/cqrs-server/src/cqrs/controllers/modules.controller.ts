@@ -61,6 +61,8 @@ export class ModulesController {
 				value: {
 					name: "Dashboard",
 					slug: "dashboard",
+					color: "#6366F1",
+					icon: "https://cdn.example.com/icons/dashboard.svg",
 					enabled: true,
 					parent: null,
 				},
@@ -71,6 +73,8 @@ export class ModulesController {
 				value: {
 					name: "Weather Widget",
 					slug: "weather",
+					color: "#0EA5E9",
+					icon: "https://cdn.example.com/icons/weather.svg",
 					enabled: true,
 					parent: "64f8a7b2c1234567890abcde",
 				},

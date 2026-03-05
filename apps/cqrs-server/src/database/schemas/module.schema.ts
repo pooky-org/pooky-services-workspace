@@ -12,6 +12,12 @@ export class Module {
 	slug!: string;
 
 	@Prop()
+	color!: string;
+
+	@Prop()
+	icon!: string;
+
+	@Prop()
 	enabled!: boolean;
 
 	@Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Module", default: null })
