@@ -12,7 +12,7 @@ export class GetModuleChildrenHandler
 
 	async execute(query: GetModuleChildrenQuery): Promise<Module[]> {
 		return this.moduleModel
-			.find({ parent: query.parentId })
+			.find({ parent: query.parentId, enabled: true })
 			.populate("parent")
 			.exec();
 	}
