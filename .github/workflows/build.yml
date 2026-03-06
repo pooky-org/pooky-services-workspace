@@ -28,7 +28,7 @@ jobs:
 
   build-mobile:
     name: Build Mobile (iOS)
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
