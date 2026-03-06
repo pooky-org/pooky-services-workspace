@@ -6,7 +6,7 @@
 	"build": {
 		"development": {
 			"developmentClient": true,
-			"distribution": "internal",
+			"distribution": "store",
 			"ios": {
 				"credentialsSource": "local"
 			},
@@ -19,7 +19,7 @@
 			}
 		},
 		"preview": {
-			"distribution": "internal",
+			"distribution": "store",
 			"env": {
 				"EXPO_PUBLIC_API_BASE_URL": "http://192.168.1.31:3000",
 				"EXPO_PUBLIC_DESKTOP_SSE_SUBSCRIPTION_ID": "484fb753-b9f8-4bb2-9256-17ef87ac069e",
@@ -30,7 +30,7 @@
 		},
 		"production": {
 			"autoIncrement": true,
-			"distribution": "internal",
+			"distribution": "store",
 			"ios": {
 				"credentialsSource": "local"
 			},
