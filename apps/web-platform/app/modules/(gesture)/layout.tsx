@@ -1,10 +1,10 @@
 "use client";
 
-import { GestureProvider } from "@/src/contexts";
 import type { PropsWithChildren } from "react";
 import { useEffect, useState } from "react";
+import { GestureProvider } from "@/src/contexts";
 
-export const ModulesGestureLayout = ({ children }: PropsWithChildren) => {
+export default function Layout({ children }: PropsWithChildren) {
 	const [roomId, setRoomId] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -20,5 +20,4 @@ export const ModulesGestureLayout = ({ children }: PropsWithChildren) => {
 			{children}
 		</GestureProvider>
 	);
-};
-export default ModulesGestureLayout;
+}
