@@ -26,7 +26,6 @@
 	},
 	"packageManager": "npm@10.9.0",
 	"workspaces": [
-		"apps/*",
-		"packages/*"
+		"apps/*"
 	]
 }
