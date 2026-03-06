@@ -61,7 +61,7 @@ jobs:
 
   build-eas:
     name: Build EAS - ${{ matrix.app }}
-    runs-on: macos-latest
+    runs-on: macos-15
     strategy:
       fail-fast: false
       matrix:
