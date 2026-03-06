@@ -42,6 +42,8 @@ export const ModuleNavigationProvider: React.FC<
 			const navData = data as ModuleNavigationData;
 			setNavigationData(navData);
 
+			console.log("navdata", navData);
+
 			const subPath = navData.path.replace(/^\/modules\/?/, "");
 			if (subPath) {
 				router.push(`/modules/${subPath}`);
