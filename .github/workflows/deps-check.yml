@@ -1,0 +1,27 @@
+name: Deps Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  deps-check:
+    name: Deps Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
+
+      - name: Setup
+        uses: ./.github/actions/setup-npm
+
+      - name: Deps Check
+        run: npm run deps:check
