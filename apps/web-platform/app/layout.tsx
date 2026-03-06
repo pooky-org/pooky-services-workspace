@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { connection } from "next/server";
 import { Geist, Geist_Mono } from "next/font/google";
+import { connection } from "next/server";
 import {
+	ModuleNavigationProvider,
 	type RuntimeConfig,
 	RuntimeConfigProvider,
 	SocketProvider,
@@ -44,7 +45,9 @@ export default async function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
 				<RuntimeConfigProvider config={runtimeConfig}>
-					<SocketProvider>{children}</SocketProvider>
+					<SocketProvider>
+						<ModuleNavigationProvider>{children}</ModuleNavigationProvider>
+					</SocketProvider>
 				</RuntimeConfigProvider>
 			</body>
 		</html>

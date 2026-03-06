@@ -29,6 +29,10 @@ inputs:
     description: "OpenBao/Vault authentication token"
     required: false
     default: ""
+  xcode-version:
+    description: "Xcode version to use (e.g. 16.2, 26.0)"
+    required: false
+    default: "26.3"
 
 runs:
   using: composite
@@ -38,6 +42,12 @@ runs:
       uses: ./.github/actions/setup-expo
       with:
         expo-token: ${{ inputs.expo-token }}
+
+    # Select the required Xcode version (iOS 26 SDK requires Xcode 26+)
+    - name: Select Xcode ${{ inputs.xcode-version }}
+      if: inputs.platform == 'ios' || inputs.platform == 'all'
+      shell: bash
+      run: sudo xcode-select -s /Applications/Xcode_${{ inputs.xcode-version }}.app/Contents/Developer
 
     # Fetch iOS certs from OpenBao and create credentials.json
     - name: Fetch iOS certificates
