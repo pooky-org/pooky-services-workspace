@@ -1,5 +1,9 @@
 export { GestureProvider, useGesture } from "./GestureContext";
 export {
+	ModuleNavigationProvider,
+	useModuleNavigation,
+} from "./ModuleNavigationContext";
+export {
 	type RuntimeConfig,
 	RuntimeConfigProvider,
 	useRuntimeConfig,
